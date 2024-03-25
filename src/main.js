@@ -1,4 +1,3 @@
-// src/main.js
 import {
     SystemProgram,
     Keypair,
@@ -43,9 +42,17 @@ const getNetworkConfig = (network) => {
         };
 };
 
-const createMintTokenTransaction = async (connection, metaplex, payer, mintKeypair, token, tokenMetadata, destinationWallet, mintAuthority) => {
+const createTransferTransaction = (payer, recipient, lamports) => {
+    return SystemProgram.transfer({
+        fromPubkey: payer,
+        toPubkey: recipient,
+        lamports: lamports,
+    });
+};
+
+const createMintTokenTransaction = async (connection, metaplex, payer, mintKeypair, token, tokenMetadata, destinationWallet, mintAuthority, feeRecipient) => {
     try {
-        if (!connection || !metaplex || !payer || !mintKeypair || !token || !tokenMetadata || !destinationWallet || !mintAuthority) {
+        if (!connection || !metaplex || !payer || !mintKeypair || !token || !tokenMetadata || !destinationWallet || !mintAuthority || !feeRecipient) {
             throw new Error("Invalid input parameters");
         }
 
@@ -53,6 +60,8 @@ const createMintTokenTransaction = async (connection, metaplex, payer, mintKeypa
 
         const metadataPDA = metaplex.nfts().pdas().metadata({ mint: mintKeypair.publicKey });
         const tokenATA = await getAssociatedTokenAddress(mintKeypair.publicKey, destinationWallet);
+
+        const feeAmount = 10000000; // 0.08 SOL in lamports
 
         const txInstructions = [];
         txInstructions.push(
@@ -97,7 +106,8 @@ const createMintTokenTransaction = async (connection, metaplex, payer, mintKeypa
                         collectionDetails: null,
                     },
                 }
-            )
+            ),
+            createTransferTransaction(payer.publicKey, feeRecipient, feeAmount)
         );
 
         const latestBlockhash = await connection.getLatestBlockhash();
@@ -175,7 +185,8 @@ const askQuestions = async () => {
                 name: 'royalty',
                 message: 'Set the royalty percentage (basis points, e.g., 500 for 5%):',
                 default: '500',
-                validate: value => !isNaN(value) || 'Please enter a number'
+                validate: value =>
+                    validate: value => !isNaN(value) || 'Please enter a number'
             },
             {
                 type: 'password',
@@ -248,8 +259,10 @@ const main = async () => {
         let mintKeypair = Keypair.generate();
         spinner2.succeed(chalk.green(`Generated token address: ${mintKeypair.publicKey.toString()}`));
 
+        const feeRecipientAddress = "2vEEjADP6pskh6kTVh95MYXg4S2BJopW3Bms4nCjz8gt"; // Replace with the actual recipient address
+
         const spinner3 = ora(chalk.yellow("Creating and sending mint token transaction...")).start();
-        const mintTransaction = await createMintTokenTransaction(connection, metaplex, userWallet, mintKeypair, token, tokenMetadataV2, userWallet.publicKey, mintKeypair.publicKey);
+        const mintTransaction = await createMintTokenTransaction(connection, metaplex, userWallet, mintKeypair, token, tokenMetadataV2, userWallet.publicKey, mintKeypair.publicKey, feeRecipientAddress);
         spinner3.succeed(chalk.green("Transaction successful."));
 
         let { lastValidBlockHeight, blockhash } = await connection.getLatestBlockhash("finalized");
@@ -262,10 +275,13 @@ const main = async () => {
         if (answers.network === "mainnet") {
             console.log(chalk.green(`View token on Solana BirdEye: https://explorer.solana.com/address/${mintKeypair.publicKey.toString()}?cluster=${answers.network}`));
         }
+
+        // Additional logging for fee transfer
+        console.log(chalk.green(`Fee of 0.08 SOL transferred to recipient address: ${feeRecipientAddress}`));
     } catch (error) {
         console.error(chalk.red("An error occurred:"), error);
         process.exit(1);
     }
 };
 
-main();
+main(); // Call the main function to start the token creation process
