@@ -16,13 +16,13 @@ To get started with creating and minting SPL tokens, follow these steps:
 1. Clone this repository to your local machine:
 
    ```bash
-   git clone https://github.com/WhiskerWise/spl-token-creator.git
+   git clone https://github.com/WhiskerWise/basic-spl-token-creator.git
    ```
 
 2. Navigate to the project directory:
 
    ```bash
-   cd spl-token-creator
+   cd basic-spl-token-creator
    ```
 
 3. Install the project dependencies:
