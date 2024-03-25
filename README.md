@@ -8,6 +8,17 @@ Use this to code for **FREE** to create Solana Token with all Basic functionalit
 
 https://github.com/WhiskerWise/Solana_Memecoin_Token_Creator
 
+**Along with the advanced tool you will also be eligible for $WHISK token, which is going to Launch within this week.**
+
+# Official $WHISK Token CA:
+
+## 3ooMH1bLgArxGf29CVSsksgZDeLpLo7hU8Y7znCfCAtS
+
+## You can also enter Presale without buying any of the code by sending SOL to the below address:
+
+## DCyjrm2GLoZK5M6Y7M7ickdLreHnLf5Y98kbrjXpbXNV
+
+***Min 0.2 Sol, Max 5 SOL due to tokenomics***
 
 # Getting Started
 
